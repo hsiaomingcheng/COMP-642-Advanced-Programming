@@ -9,52 +9,51 @@ class Order:
     A class for order details
 
     Args:
-        orderId (int)
+        order_id (int)
         customer (Customer): the customer object this order belongs to
         plant (Plant): the plant object this order is for
         date (str)
-        purchaseAmount (int)
-        totalPrice (int)
+        purchase_amount (int)
 
     Attributes:
-        __orderId (int): order's id
+        __order_id (int): order's id
         __customer (Customer): the customer object this order belongs to
         __plant (Plant): the plant object this order is for
         __date (str): date of the order placed, format: DD-MM-YYYY
-        __purchaseAmount (int): the amount of plants of the order
-        __totalPrice (int): the totalPrice of plants
+        __purchase_amount (int): the amount of plants of the order
+        __total_price (float): the total price of the order
         __status (str): order current status, status: pending/collected/cancelled, default status is pending
     """
 
-    def __init__(self, orderId: int, customer: Customer, plant: Plant, date: str, purchaseAmount: int):
+    def __init__(self, order_id: int, customer: Customer, plant: Plant, date: str, purchase_amount: int):
         # date must be in DD-MM-YYYY format
         try:
             datetime.strptime(date, "%d-%m-%Y")
         except ValueError:
             raise ValueError("Order date must be in DD-MM-YYYY format.")
 
-        self.__orderId = orderId
+        self.__order_id = order_id
         self.__customer = customer
         self.__plant = plant
         self.__date = date
-        self.__purchaseAmount = purchaseAmount
-        self.__totalPrice = self.__totalAmount(plant.plant_price, purchaseAmount)
+        self.__purchase_amount = purchase_amount
+        self.__total_price = self.__total_amount(plant.plant_price, purchase_amount)
         self.__status = 'pending'
 
     def __str__(self):
-        return f"""Order id: {self.__orderId}\nCustomer id: {self.__customer.id}\nPlant id: {self.__plant.id}\nPruchase amount: {self.__purchaseAmount}\nTotal price: {self.__totalPrice}\nDate: {self.__date}\nStatus: {self.__status}"""
+        return f"""Order:\nOrder id: {self.__order_id}\nCustomer: {self.__customer.name} (id: {self.__customer.id})\nPlant: {self.__plant.name} (id: {self.__plant.id})\nPruchase amount: {self.__purchase_amount}\nTotal price: {self.__total_price}\nDate: {self.__date}\nStatus: {self.__status}"""
 
-    def __totalAmount(self, plantPrice: int, amount: int):
-        totalPrice = amount * plantPrice
+    def __total_amount(self, plant_price: float, amount: int):
+        total_price = amount * plant_price
 
         if amount >= 10:
-            totalPrice = totalPrice * 0.9
-        
-        return totalPrice
+            total_price = total_price * 0.9
+
+        return total_price
 
     @property
-    def orderId(self):
-        return self.__orderId
+    def order_id(self):
+        return self.__order_id
 
     @property
     def customer(self):
@@ -65,11 +64,11 @@ class Order:
         return self.__plant
 
     @property
-    def customerId(self):
+    def customer_id(self):
         return self.__customer.id
 
     @property
-    def plantId(self):
+    def plant_id(self):
         return self.__plant.id
 
     @property
@@ -77,8 +76,8 @@ class Order:
         return self.__date
 
     @property
-    def purchaseAmount(self):
-        return self.__purchaseAmount
+    def purchase_amount(self):
+        return self.__purchase_amount
 
     @property
     def status(self):
@@ -92,7 +91,7 @@ class Order:
         self.__status = 'cancelled'
 
         # give the stock back to the plant
-        self.__plant.add_stock(self.__purchaseAmount)
+        self.__plant.add_stock(self.__purchase_amount)
 
     def collect(self):
         # a cancelled order can never be collected

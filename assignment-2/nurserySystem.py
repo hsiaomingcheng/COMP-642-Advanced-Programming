@@ -118,7 +118,7 @@ class NurserySystem:
     def orderInfo(self, orderId: int):
         # finding the order
         for o in self.__orders:
-            if o.orderId == orderId:
+            if o.order_id == orderId:
                 return o
 
         return None
@@ -133,7 +133,7 @@ class NurserySystem:
 
         # print the details of order of the specific customer
         for order in self.__orders:
-            if order.customerId == cusId:
+            if order.customer_id == cusId:
                 if length != 0:
                     print("---")
 
