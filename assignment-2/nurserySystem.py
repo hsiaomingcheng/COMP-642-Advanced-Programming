@@ -17,7 +17,7 @@ class NurserySystem:
 
     def addCustomer(self, newCus: Customer):
         # reject the request, if email and phoneNumber is blank
-        if newCus.email == "" and newCus.phoneNumber == "":
+        if newCus.email == "" and newCus.phone_number == "":
             raise ValueError("You need to enter at least email or phone number.")
 
         # verify if the new customer's email and phone number is already exist
@@ -26,7 +26,7 @@ class NurserySystem:
             if newCus.email != "" and cus.email == newCus.email:
                 raise ValueError("The email has already been used.")
 
-            if newCus.phoneNumber != "" and cus.phoneNumber == newCus.phoneNumber:
+            if newCus.phone_number != "" and cus.phone_number == newCus.phone_number:
                 raise ValueError("The phone number has already been used.")
 
         # add new customer
@@ -78,7 +78,7 @@ class NurserySystem:
             raise ValueError("Please enter a valid customer and plant.")
 
         # Check the stock level, and reduce stock level if it is enough
-        targetPlant.stockLevelCheckAndBuy(amount)
+        targetPlant.stock_level_check_and_buy(amount)
 
         # making an order
         self.__orders.append(
@@ -87,7 +87,7 @@ class NurserySystem:
                 customerId,
                 plantId,
                 date.today().strftime("%d-%m-%Y"),
-                targetPlant.plantPrice,
+                targetPlant.plant_price,
                 amount
             )
         )
@@ -116,7 +116,7 @@ class NurserySystem:
         # adding stock back to the plant object
         for plant in self.__plants:
             if plant.id == targetOrder.plantId:
-                plant.stockLevel = targetOrder.purchaseAmount
+                plant.add_stock(targetOrder.purchaseAmount)
 
     def orderInfo(self, orderId: int):
         # finding the order

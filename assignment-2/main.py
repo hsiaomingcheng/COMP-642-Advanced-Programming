@@ -22,9 +22,9 @@ mainSystem.addPlant(Plant(5, "papermint", "pot plants", 30, 20))
 # -> checking if the plant stock level is enough
 plant = mainSystem.plantInfo(1)
 
-print(f"The plant's stock level is {plant.stockLevel}")
+print(f"The plant's stock level is {plant.stock_level}")
 
-if plant.stockLevelCheck(60):
+if plant.stock_level_check(60):
     print("The plant's stock level is enough.")
 else:
     print("The plant's stock level is not enough.")
