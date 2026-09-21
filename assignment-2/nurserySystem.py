@@ -54,8 +54,7 @@ class NurserySystem:
 
 
     def placeOrder(self, customerId: int, plantId: int, amount: int):
-        isValidCustomer = False
-        isValidPlant = False
+        targetCustomer = None
         targetPlant = None
 
         # if the user trying to place a order with 0 amount, then reject.
@@ -65,16 +64,15 @@ class NurserySystem:
         # verify if it is a valid customer
         for cus in self.__customers:
             if cus.id == customerId:
-                isValidCustomer = True
+                targetCustomer = cus
 
         # verify if it is a valid plant
         for plant in self.__plants:
             if plant.id == plantId:
-                isValidPlant = True
                 targetPlant = plant
 
         # block the process if user enter invalid customer and plant id
-        if not isValidCustomer or not isValidPlant:
+        if targetCustomer is None or targetPlant is None:
             raise ValueError("Please enter a valid customer and plant.")
 
         # Check the stock level, and reduce stock level if it is enough
@@ -84,10 +82,9 @@ class NurserySystem:
         self.__orders.append(
             Order(
                 len(self.__orders) + 1,
-                customerId,
-                plantId,
+                targetCustomer,
+                targetPlant,
                 date.today().strftime("%d-%m-%Y"),
-                targetPlant.plant_price,
                 amount
             )
         )
