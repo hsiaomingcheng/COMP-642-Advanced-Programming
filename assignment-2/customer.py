@@ -16,7 +16,7 @@ class Customer:
         __cus_phone_num (str): customer's phone number.
     """
 
-    def __init__(self, id: int, name: str, email: str, phone_number: str):
+    def __init__(self, id: int, name: str, email: str, phone_number: str) -> None:
         # id must be a positive integer
         if not isinstance(id, int) or id <= 0:
             raise ValueError("Customer id must be a positive integer.")

@@ -19,8 +19,14 @@ class Plant:
 
     VALID_CATEGORIES = ("trees and shrubs", "perennials", "pot plants", "vegetable seedlings")
 
-    def __init__(self, id: int, name: str, category: str, price: float, stock_level: int):
+    def __init__(self, id: int, name: str, category: str, price: float, stock_level: int) -> None:
+        """
+        Create a plant.
 
+        Raises:
+            ValueError: if price is negative, or category is not one of
+                VALID_CATEGORIES.
+        """
         # price must be a positive float, 0 is allowed to represent a free plant
         if price < 0:
             raise ValueError("Plant price cannot be negative.")
@@ -35,23 +41,34 @@ class Plant:
         self.__plant_price = float(price)
         self.__plant_stock_level = stock_level
 
-    def __str__(self):
-        return f"Plant id: {self.__plant_id}\nPlant name: {self.__plant_name}\nPlant Category: {self.__plant_category}\nPrice: {self.__plant_price}\nStock level: {self.__plant_stock_level}"
+    def __str__(self) -> str:
+        """Return a readable, multi-line summary of the plant."""
+        price_display = "Free" if self.__plant_price == 0 else self.__plant_price
+        return f"Plant:\nPlant id: {self.__plant_id}\nPlant name: {self.__plant_name}\nPlant Category: {self.__plant_category}\nPrice: {price_display}\nStock level: {self.__plant_stock_level}"
 
     @property
-    def id(self):
+    def id(self) -> int:
+        """int: the plant's id."""
         return self.__plant_id
 
     @property
-    def name(self):
+    def name(self) -> str:
+        """str: the plant's name."""
         return self.__plant_name
 
     @property
-    def category(self):
+    def category(self) -> str:
+        """str: the plant's category, one of VALID_CATEGORIES."""
         return self.__plant_category
 
     @category.setter
-    def category(self, new_category: str):
+    def category(self, new_category: str) -> None:
+        """
+        Update the plant's category.
+
+        Raises:
+            ValueError: if new_category is not one of VALID_CATEGORIES.
+        """
         # category must be one of the allowed options
         if new_category not in self.VALID_CATEGORIES:
             raise ValueError(f"Plant category must be one of {self.VALID_CATEGORIES}.")
@@ -59,11 +76,18 @@ class Plant:
         self.__plant_category = new_category
 
     @property
-    def plant_price(self):
+    def plant_price(self) -> float:
+        """float: the plant's price; 0 means the plant is free."""
         return self.__plant_price
 
     @plant_price.setter
-    def plant_price(self, new_price: float):
+    def plant_price(self, new_price: float) -> None:
+        """
+        Update the plant's price.
+
+        Raises:
+            ValueError: if new_price is negative.
+        """
         # price must be a positive float, 0 is allowed to represent a free plant
         if new_price < 0:
             raise ValueError("Plant price cannot be negative.")
@@ -71,21 +95,41 @@ class Plant:
         self.__plant_price = float(new_price)
 
     @property
-    def stock_level(self):
+    def stock_level(self) -> int:
+        """int: the plant's current stock level."""
         return self.__plant_stock_level
 
-    def add_stock(self, amount: int):
+    def add_stock(self, amount: int) -> None:
+        """
+        Restock the plant by adding to its stock level.
+
+        Args:
+            amount (int): number of units to add, must be greater than 0.
+
+        Raises:
+            ValueError: if amount is not greater than 0.
+        """
         # restocking must add a positive amount
         if amount <= 0:
             raise ValueError("The amount to add must be greater than 0.")
 
         self.__plant_stock_level += amount
 
-    def stock_level_check_and_buy(self, amount: int):
+    def stock_level_check_and_buy(self, amount: int) -> None:
+        """
+        Reduce the plant's stock level by amount, if enough stock is available.
+
+        Args:
+            amount (int): number of units being purchased.
+
+        Raises:
+            ValueError: if there is not enough stock.
+        """
         if self.stock_level_check(amount):
             self.__plant_stock_level = self.__plant_stock_level - amount
         else:
             raise ValueError("The plant's stock level is not enough.")
 
     def stock_level_check(self, amount: int) -> bool:
+        """Return True if the plant's stock level is at least amount."""
         return self.__plant_stock_level >= amount
