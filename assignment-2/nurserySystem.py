@@ -91,10 +91,8 @@ class NurserySystem:
 
     def cancelOrder(self, orderId: int):
         """
-        cancel a order need to do two things
-
-        1. change order status into 'cancelled', if the status is 'collected', then it cannot be cancelled
-        2. adding the stock back to the plant, if it got cancelled successfully
+        Cancel a pending order. The Order itself validates that it is still
+        pending and returns the purchased stock to its plant.
         """
         # get order info
         targetOrder = self.orderInfo(orderId)
@@ -103,17 +101,19 @@ class NurserySystem:
         if targetOrder is None:
             raise ValueError("Please enter valid order Id")
 
-        # verify the status before cancel
-        if not targetOrder.cancelCheck:
-            raise ValueError("A collected or cancelled order cannot cancel")
+        targetOrder.cancel()
 
-        # change order status
-        targetOrder.status = 'cancelled'
+    def collectOrder(self, orderId: int):
+        """
+        Mark a pending order as collected. The Order itself validates that it
+        is not cancelled or already collected.
+        """
+        targetOrder = self.orderInfo(orderId)
 
-        # adding stock back to the plant object
-        for plant in self.__plants:
-            if plant.id == targetOrder.plantId:
-                plant.add_stock(targetOrder.purchaseAmount)
+        if targetOrder is None:
+            raise ValueError("Please enter valid order Id")
+
+        targetOrder.collect()
 
     def orderInfo(self, orderId: int):
         # finding the order
@@ -122,28 +122,6 @@ class NurserySystem:
                 return o
 
         return None
-
-    def updateOrderStatus(self, orderId: int, status: str):
-        """
-        First, stop any cancel status with out using cancelOrder method
-        Second, reject invalid order id
-        Thrid, a cancelled order cannot change its status again
-        """
-        # prevent user skip cancelCheck to set cancelled status
-        if status == 'cancelled':
-            raise ValueError("Please use cancelOrder to cancel an order.")
-
-        targetOrder = self.orderInfo(orderId)
-
-        # verify the order
-        if targetOrder is None:
-            raise ValueError("Please enter an exist order ID.")
-
-        # cancelled order is not allow to be changed its status
-        if targetOrder.status == 'cancelled':
-            raise ValueError("Cancelled order cannot change order status")
-
-        targetOrder.status = status
 
     def customerOrderHistory(self, cusId: int):
         length = 0

@@ -84,20 +84,23 @@ class Order:
     def status(self):
         return self.__status
 
-    @property
-    def cancelCheck(self):
-        if self.__status == 'pending':
-            return True
-        else:
-            return False
+    def cancel(self):
+        # only a pending order can be cancelled
+        if self.__status != 'pending':
+            raise ValueError("A collected or cancelled order cannot be cancelled.")
 
-    @status.setter
-    def status(self, newStatus):
-        statusAry = ['pending', 'collected', 'cancelled']
+        self.__status = 'cancelled'
 
-        # verify valid status
-        if newStatus not in statusAry:
-            raise ValueError("Please enter valid status")
+        # give the stock back to the plant
+        self.__plant.add_stock(self.__purchaseAmount)
 
-        # changing into new status
-        self.__status = newStatus
+    def collect(self):
+        # a cancelled order can never be collected
+        if self.__status == 'cancelled':
+            raise ValueError("A cancelled order cannot be collected.")
+
+        # a collected order cannot be collected again or moved back to pending
+        if self.__status == 'collected':
+            raise ValueError("This order has already been collected.")
+
+        self.__status = 'collected'

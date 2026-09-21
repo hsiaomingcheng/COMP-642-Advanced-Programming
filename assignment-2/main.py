@@ -56,10 +56,10 @@ print(mainSystem.orderInfo(1)) # order status after cancelled
 print("=== plant info after cancelled ===")
 print(mainSystem.plantInfo(1)) # plant stock level after cancelled
 
-# -> update order status
-mainSystem.updateOrderStatus(2, 'collected')
+# -> collect order
+mainSystem.collectOrder(2)
 print("")
-print("=== Update order status ===")
+print("=== Collect order ===")
 print(mainSystem.orderInfo(2))
 
 # -> list customers / list plants / list orders
