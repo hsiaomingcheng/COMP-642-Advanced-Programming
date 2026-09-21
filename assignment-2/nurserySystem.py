@@ -16,18 +16,17 @@ class NurserySystem:
         self.__orders = []
 
     def addCustomer(self, newCus: Customer):
-        # reject the request, if email and phoneNumber is blank
-        if newCus.email == "" and newCus.phone_number == "":
-            raise ValueError("You need to enter at least email or phone number.")
+        # blank email/phone number is already rejected by Customer's own constructor
 
-        # verify if the new customer's email and phone number is already exist
-        # if it is already exist, then reject the request
+        # verify customer ID is unique within the system
+        if self.customerInfo(newCus.id):
+            raise ValueError("This customer ID already exists")
+
+        # reject the request if the email or phone number is already used by
+        # an existing customer; Customer owns this comparison logic
         for cus in self.__customers:
-            if newCus.email != "" and cus.email == newCus.email:
-                raise ValueError("The email has already been used.")
-
-            if newCus.phone_number != "" and cus.phone_number == newCus.phone_number:
-                raise ValueError("The phone number has already been used.")
+            if cus.conflicts_with(newCus):
+                raise ValueError("The email or phone number has already been used.")
 
         # add new customer
         self.__customers.append(newCus)
@@ -36,7 +35,7 @@ class NurserySystem:
         for cus in self.__customers:
             if cus.id == cusId:
                 return cus
-
+        return None
 
     def addPlant(self, newPlant: Plant):
         # verify plant ID
@@ -51,6 +50,15 @@ class NurserySystem:
             if plant.id == plantId:
                 return plant
         return None
+
+    def availablePlantList(self):
+        # only show plants that currently have stock available
+        availablePlants = [plant for plant in self.__plants if plant.stock_level_check(1)]
+
+        for index, plant in enumerate(availablePlants):
+            if index != 0:
+                print("---")
+            print(plant)
 
 
     def placeOrder(self, customerId: int, plantId: int, amount: int):
@@ -116,12 +124,18 @@ class NurserySystem:
         targetOrder.collect()
 
     def orderInfo(self, orderId: int):
-        # finding the order
         for o in self.__orders:
             if o.order_id == orderId:
                 return o
-
         return None
+
+    def checkOrderStatus(self, orderId: int) -> str:
+        targetOrder = self.orderInfo(orderId)
+
+        if targetOrder is None:
+            raise ValueError("Please enter valid order Id")
+
+        return targetOrder.status
 
     def customerOrderHistory(self, cusId: int):
         length = 0
