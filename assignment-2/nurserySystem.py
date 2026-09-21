@@ -43,6 +43,7 @@ class NurserySystem:
 
     def customer_info(self, cus_id: int) -> Customer | None:
         """Return the customer with the given id, or None if not found."""
+        # linear search, there's no index by id
         for cus in self.__customers:
             if cus.id == cus_id:
                 return cus
@@ -67,6 +68,7 @@ class NurserySystem:
 
     def plant_info(self, plant_id: int) -> Plant | None:
         """Return the plant with the given id, or None if not found."""
+        # linear search, there's no index by id
         for plant in self.__plants:
             if plant.id == plant_id:
                 return plant
@@ -165,6 +167,7 @@ class NurserySystem:
 
     def order_info(self, order_id: int) -> Order | None:
         """Return the order with the given id, or None if not found."""
+        # linear search, there's no index by id
         for o in self.__orders:
             if o.order_id == order_id:
                 return o
@@ -212,6 +215,7 @@ class NurserySystem:
 
     def customer_list(self) -> None:
         """Print every customer in the system."""
+        # print a '---' separator between entries, but not before the first one
         for index, cus in enumerate(self.__customers):
             if index != 0:
                 print("---")
