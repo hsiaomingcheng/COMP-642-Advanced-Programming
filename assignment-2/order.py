@@ -49,7 +49,16 @@ class Order:
 
     def __str__(self) -> str:
         """Return a readable, multi-line summary of the order."""
-        return f"""Order:\nOrder id: {self.__order_id}\nCustomer: {self.__customer.name} (id: {self.__customer.id})\nPlant: {self.__plant.name} (id: {self.__plant.id})\nPruchase amount: {self.__purchase_amount}\nTotal price: {self.__total_price}\nDate: {self.__date}\nStatus: {self.__status}"""
+        return (
+            f"Order:\n"
+            f"Order id: {self.__order_id}\n"
+            f"Customer: {self.__customer.name} (id: {self.__customer.id})\n"
+            f"Plant: {self.__plant.name} (id: {self.__plant.id})\n"
+            f"Pruchase amount: {self.__purchase_amount}\n"
+            f"Total price: {self.__total_price}\n"
+            f"Date: {self.__date}\n"
+            f"Status: {self.__status}"
+        )
 
     def __total_amount(self, plant_price: float, amount: int) -> float:
         """

@@ -44,7 +44,14 @@ class Plant:
     def __str__(self) -> str:
         """Return a readable, multi-line summary of the plant."""
         price_display = "Free" if self.__plant_price == 0 else self.__plant_price
-        return f"Plant:\nPlant id: {self.__plant_id}\nPlant name: {self.__plant_name}\nPlant Category: {self.__plant_category}\nPrice: {price_display}\nStock level: {self.__plant_stock_level}"
+        return (
+            f"Plant:\n"
+            f"Plant id: {self.__plant_id}\n"
+            f"Plant name: {self.__plant_name}\n"
+            f"Plant Category: {self.__plant_category}\n"
+            f"Price: {price_display}\n"
+            f"Stock level: {self.__plant_stock_level}"
+        )
 
     @property
     def id(self) -> int:
