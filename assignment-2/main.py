@@ -18,6 +18,16 @@ mainSystem.add_plant(Plant(2, "cactus", "pot plants", 20, 50))
 mainSystem.add_plant(Plant(3, "papermint", "pot plants", 30, 40))
 mainSystem.add_plant(Plant(4, "tomato", "vegetable seedlings", 10, 40))
 mainSystem.add_plant(Plant(5, "papermint", "pot plants", 30, 20))
+mainSystem.add_plant(Plant(6, "orchid", "pot plants", 45, 0))  # out of stock, should be excluded from available_plant_list
+
+# -> trying to add a plant with a negative price should be rejected
+print("=== Attempting to add a plant with a negative price ===")
+try:
+    mainSystem.add_plant(Plant(7, "dying rose", "perennials", -5, 10))
+except ValueError as e:
+    print(f"Error: {e}")
+
+print("")
 
 # -> checking if the plant stock level is enough
 plant = mainSystem.plant_info(1)
@@ -36,6 +46,15 @@ mainSystem.place_order(1, 1, 10)
 mainSystem.place_order(2, 2, 5)
 mainSystem.place_order(1, 3, 5)
 mainSystem.place_order(1, 4, 5)
+
+# -> trying to place an order with 0 plants should be rejected
+print("=== Attempting to place an order with 0 plants ===")
+try:
+    mainSystem.place_order(1, 1, 0)
+except ValueError as e:
+    print(f"Error: {e}")
+
+print("")
 
 # -> customer order history
 print("=== Specific customer's order history ===")
@@ -70,6 +89,10 @@ mainSystem.customer_list()
 print("")
 print("=== Starting display Plant list===")
 mainSystem.plant_list()
+
+print("")
+print("=== Starting display available Plant list only ===")
+mainSystem.available_plant_list()
 
 print("")
 print("=== Starting display Order list===")
