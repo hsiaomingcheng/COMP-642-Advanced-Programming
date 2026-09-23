@@ -1,5 +1,5 @@
 from customer import Customer
-from plant import Plant
+from plant.plant import Plant
 from order import Order
 from nurserySystem import NurserySystem
 

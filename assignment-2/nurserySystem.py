@@ -1,5 +1,5 @@
 from order import Order
-from plant import Plant
+from plant.plant import Plant
 from customer import Customer
 from datetime import date
 

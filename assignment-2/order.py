@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from customer import Customer
-from plant import Plant
+from plant.plant import Plant
 
 
 class Order:

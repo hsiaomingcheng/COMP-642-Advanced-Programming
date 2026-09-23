@@ -1,43 +1,35 @@
-class Plant:
+from abc import ABC, abstractmethod
+
+class Plant(ABC):
     """
     A Class for documenting details of plants
 
     Args:
         id (int)
         name (str)
-        category (str)
         price (float): must be 0 or greater; 0 represents a free plant.
         stock_level (int)
 
     Attributes:
         __plant_id (int): serial number of plants
         __plant_name (str): name of the plant
-        __plant_category (str): options of category (trees and shrubs, perennials, pot plants, or vegetable seedlings)
         __plant_price (float): price of the plant, 0 means the plant is free
         __plant_stock_level (int): the amount of the plant been stocked
     """
 
-    VALID_CATEGORIES = ("trees and shrubs", "perennials", "pot plants", "vegetable seedlings")
-
-    def __init__(self, id: int, name: str, category: str, price: float, stock_level: int) -> None:
+    def __init__(self, id: int, name: str, price: float, stock_level: int) -> None:
         """
         Create a plant.
 
         Raises:
-            ValueError: if price is negative, or category is not one of
-                VALID_CATEGORIES.
+            ValueError: if price is negative
         """
         # price must be a positive float, 0 is allowed to represent a free plant
         if price < 0:
             raise ValueError("Plant price cannot be negative.")
 
-        # category must be one of the allowed options
-        if category not in self.VALID_CATEGORIES:
-            raise ValueError(f"Plant category must be one of {self.VALID_CATEGORIES}.")
-
         self.__plant_id = id
         self.__plant_name = name
-        self.__plant_category = category
         self.__plant_price = float(price)
         self.__plant_stock_level = stock_level
 
@@ -48,10 +40,16 @@ class Plant:
             f"Plant:\n"
             f"Plant id: {self.__plant_id}\n"
             f"Plant name: {self.__plant_name}\n"
-            f"Plant Category: {self.__plant_category}\n"
+            f"Plant Category: {self.category}\n"
             f"Price: {price_display}\n"
-            f"Stock level: {self.__plant_stock_level}"
+            f"Stock level: {self.__plant_stock_level}\n"
+            f"Unit label: {self.unit_label}"
         )
+
+    @property
+    def unit_label(self) -> str:
+        """Return a default unit label, if the child class does not provide one."""
+        return "plant"
 
     @property
     def id(self) -> int:
@@ -64,23 +62,10 @@ class Plant:
         return self.__plant_name
 
     @property
+    @abstractmethod
     def category(self) -> str:
-        """str: the plant's category, one of VALID_CATEGORIES."""
-        return self.__plant_category
-
-    @category.setter
-    def category(self, new_category: str) -> None:
-        """
-        Update the plant's category.
-
-        Raises:
-            ValueError: if new_category is not one of VALID_CATEGORIES.
-        """
-        # category must be one of the allowed options
-        if new_category not in self.VALID_CATEGORIES:
-            raise ValueError(f"Plant category must be one of {self.VALID_CATEGORIES}.")
-
-        self.__plant_category = new_category
+        """force child class to pass their own category when they trying to build a object."""
+        pass
 
     @property
     def plant_price(self) -> float:
