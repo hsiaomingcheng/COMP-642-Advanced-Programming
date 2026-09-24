@@ -1,6 +1,6 @@
-from customer import Customer
+from customer.customer import Customer
 from plant.plant import Plant
-from order import Order
+from order.order import Order
 from nurserySystem import NurserySystem
 
 # -> create system

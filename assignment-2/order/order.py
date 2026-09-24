@@ -1,8 +1,10 @@
 from datetime import datetime
-
-from customer import Customer
 from plant.plant import Plant
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from customer.customer import Customer
 
 class Order:
     """
@@ -25,7 +27,7 @@ class Order:
         __status (str): order current status, status: pending/collected/cancelled, default status is pending
     """
 
-    def __init__(self, order_id: int, customer: Customer, plant: Plant, date: str, purchase_amount: int) -> None:
+    def __init__(self, order_id: int, customer: "Customer", plant: Plant, date: str, purchase_amount: int) -> None:
         """
         Create an order, computing its total price (with a 10% discount for
         10 or more units) and setting its initial status to 'pending'.
@@ -85,7 +87,7 @@ class Order:
         return self.__order_id
 
     @property
-    def customer(self) -> Customer:
+    def customer(self) -> "Customer":
         """Customer: the customer this order belongs to."""
         return self.__customer
 

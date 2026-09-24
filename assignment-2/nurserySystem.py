@@ -1,6 +1,6 @@
-from order import Order
+from order.order import Order
 from plant.plant import Plant
-from customer import Customer
+from customer.customer import Customer
 from datetime import date
 
 class NurserySystem:
@@ -121,16 +121,20 @@ class NurserySystem:
         # Check the stock level, and reduce stock level if it is enough
         target_plant.stock_level_check_and_buy(amount)
 
-        # making an order
-        self.__orders.append(
-            Order(
-                len(self.__orders) + 1,
-                target_customer,
-                target_plant,
-                date.today().strftime("%d-%m-%Y"),
-                amount
-            )
+        # Creating a new Order object and put into a variable
+        new_order = Order(
+            len(self.__orders) + 1,
+            target_customer,
+            target_plant,
+            date.today().strftime("%d-%m-%Y"),
+            amount
         )
+
+        # making an order
+        self.__orders.append(new_order)
+
+        # record the order
+        target_customer.record_order(new_order)
 
     def cancel_order(self, order_id: int) -> None:
         """

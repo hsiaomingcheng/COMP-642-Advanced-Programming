@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from nurseryErrorException import InsufficientStockError
 
 class Plant(ABC):
     """
@@ -120,7 +121,7 @@ class Plant(ABC):
         if self.stock_level_check(amount):
             self.__plant_stock_level = self.__plant_stock_level - amount
         else:
-            raise ValueError("The plant's stock level is not enough.")
+            raise InsufficientStockError("The plant's stock level is not enough.")
 
     def stock_level_check(self, amount: int) -> bool:
         """Return True if the plant's stock level is at least amount."""
