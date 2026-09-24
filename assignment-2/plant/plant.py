@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from nurseryErrorException import InsufficientStockError
+from nurseryErrorException.InsufficientStockError import InsufficientStockError
 
 class Plant(ABC):
     """
