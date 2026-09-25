@@ -1,3 +1,4 @@
+import os, pickle, atexit
 from order.order import Order
 from plant.plant import Plant
 from customer.customer import Customer
@@ -11,11 +12,41 @@ class NurserySystem:
     Also, for the searching and listing.
     """
 
-    def __init__(self, file) -> None:
+    def __init__(self, file: str) -> None:
         self.__customers = []
         self.__plants = []
         self.__orders = []
         self.__payments = []
+        self.__file = os.path.join(os.path.dirname(__file__), file)
+
+        self.load()
+        atexit.register(self.save)
+
+    def save(self) -> None:
+        """save customers, plants, orders, payments together as a pickle file"""
+        system_contents = (self.__customers, self.__plants, self.__orders, self.__payments)
+        with open(self.__file, "wb") as f:
+            pickle.dump(system_contents, f)
+
+    def load(self) -> None:
+        """
+        load the pickle file and give the value back to
+        the self.__customer,self.__plants, self.__orders, self.__payments
+        """
+
+        # if file exist then load the file otherwise programme will crash
+        # due to the atexit.register(self.save) in init at the beginning
+        if os.path.exists(self.__file):
+            try:
+                with open(self.__file, "rb") as f:
+                    customers, plants, orders, payments = pickle.load(f)
+                    
+                    self.__customers = customers
+                    self.__plants = plants
+                    self.__orders = orders
+                    self.__payments = payments
+            except Exception:
+                print("Failed to load the file.")
 
     def add_customer(self, new_cus: Customer) -> None:
         """
