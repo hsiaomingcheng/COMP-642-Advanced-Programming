@@ -2,11 +2,13 @@ from datetime import datetime
 from plant.plant import Plant
 from order.orderItem import OrderItem
 from nurseryErrorException.InsufficientStockError import InsufficientStockError
+from nurseryErrorException.PaymentExceedsOwedError import PaymentExceedsOwedError
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from customer.customer import Customer
+    from payment.payment import Payment
 
 class Order:
     """
@@ -51,7 +53,9 @@ class Order:
             f"Order id: {self.__order_id}\n"
             f"Customer: {self.__customer.name} (id: {self.__customer.id})\n"
             f"Date: {self.__date}\n"
-            f"Status: {self.__status}"
+            f"Status: {self.__status}\n"
+            f"Paid: {self.get_amount_paid()}\n"
+            f"Owed: {self.get_amount_owed()}"
         )
 
     @property
@@ -78,6 +82,16 @@ class Order:
     def status(self) -> str:
         """str: the order's current status ('pending', 'collected', or 'cancelled')."""
         return self.__status
+
+    @property
+    def order_items(self) -> list:
+        """return order item list"""
+        return list(self.__items)
+
+    @property
+    def order_payments(self) -> list:
+        """return order payment list"""
+        return list(self.__payments)
 
     def add_item(self, plant: "Plant", quantity: int) -> None:
         """
@@ -111,20 +125,41 @@ class Order:
 
         return round(subtotal * (1 - self.__customer.discount_rate), 2)
 
-    def get_amount_paid():
-        pass
+    def get_amount_paid(self) -> float:
+        """Check how much already paid for this order"""
+        amount = 0.0
+        for payment in self.__payments:
+            amount += payment.amount
+            
+        return round(amount, 2)
 
-    def get_amount_owed():
-        pass
+    def get_amount_owed(self) -> float:
+        """Check how much still owed for this order"""
+        if self.status == "cancelled":
+            return 0.0
 
-    def is_fully_paid() -> bool:
-        return False
+        return round(self.get_total() - self.get_amount_paid(), 2)
 
-    def check_can_accept_payment():
-        pass
+    def is_fully_paid(self) -> bool:
+        """return true if there's no money left to pay"""
+        return self.get_amount_owed() == 0
 
-    def record_payment():
-        pass
+    def check_can_accept_payment(self, payment: "Payment") -> None:
+        """
+        If the order not owed any money or has been cancelled
+        If the payment amount is not greater than owed amount
+
+        If these two verify were not triggered, it means that was a acceptable payment.
+        """
+        if self.is_fully_paid() or self.__status == "cancelled":
+            raise PaymentExceedsOwedError("The order has already cancelled or fully paid.")
+
+        if payment.amount > self.get_amount_owed():
+            raise PaymentExceedsOwedError("The payment amount exceeds the owed amount.")
+
+    def record_payment(self, payment: "Payment") -> None:
+        """put payment into payments list as a payment record"""
+        self.__payments.append(payment)
 
     def place(self) -> None:
         """
@@ -168,6 +203,9 @@ class Order:
         2. remove the balance amount of the customer
         3. set the order status to 'cancelled'
         """
+        if len(self.__payments) > 0:
+            raise ValueError("Paid/Partially-paid order cannot be cancelled.")
+
         if self.__status != "pending":
             raise ValueError("The order status needs to be 'Pending' to cancel it.")
 

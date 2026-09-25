@@ -118,14 +118,14 @@ class Customer(ABC):
 
     def add_to_balance(self, order_total_amount: float) -> None:
         """Combining customer's order total amount and its unpaid balance when placing an order."""
-        self.__cus_balance += order_total_amount
+        self.__cus_balance = round(self.__cus_balance + order_total_amount, 2)
 
     def reduce_balance(self, amount: float) -> None:
         """Minus customer's unpaid balance, and verify the recuding amount."""
         if amount > self.__cus_balance:
             raise ValueError("The reducing amount cannot greater than the customer unpaid balance.")
 
-        self.__cus_balance = self.__cus_balance - amount
+        self.__cus_balance = round(self.__cus_balance - amount, 2)
 
     def record_order(self, order: "Order") -> None:
         """Adding a new order into customer's order list"""
