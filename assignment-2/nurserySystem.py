@@ -1,6 +1,7 @@
 from order.order import Order
 from plant.plant import Plant
 from customer.customer import Customer
+from payment.payment import Payment
 from datetime import date
 
 class NurserySystem:
@@ -10,10 +11,11 @@ class NurserySystem:
     Also, for the searching and listing.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, file) -> None:
         self.__customers = []
         self.__plants = []
         self.__orders = []
+        self.__payments = []
 
     def add_customer(self, new_cus: Customer) -> None:
         """
@@ -84,57 +86,38 @@ class NurserySystem:
                 print("---")
             print(plant)
 
-    def place_order(self, customer_id: int, plant_id: int, amount: int) -> None:
+    def place_order(self, customer_id: int, item_list: list[tuple[int, int]]) -> int:
         """
         Place a new order for a customer and plant, reducing the plant's stock.
-
-        Args:
-            customer_id (int): id of the customer placing the order.
-            plant_id (int): id of the plant being ordered.
-            amount (int): number of units to order.
-
-        Raises:
-            ValueError: if amount is not greater than 0, if the customer/plant
-                id is invalid, or if the plant does not have enough stock.
         """
-        target_customer = None
-        target_plant = None
+        target_customer = self.customer_info(customer_id)
 
-        # if the user trying to place a order with 0 amount, then reject.
-        if amount <= 0:
-            raise ValueError("The amount need to be greatter than 0.")
+        # block the process if user enter invalid customer
+        if target_customer is None:
+            raise ValueError("Please enter a valid customer.")
 
-        # verify if it is a valid customer
-        for cus in self.__customers:
-            if cus.id == customer_id:
-                target_customer = cus
-
-        # verify if it is a valid plant
-        for plant in self.__plants:
-            if plant.id == plant_id:
-                target_plant = plant
-
-        # block the process if user enter invalid customer and plant id
-        if target_customer is None or target_plant is None:
-            raise ValueError("Please enter a valid customer and plant.")
-
-        # Check the stock level, and reduce stock level if it is enough
-        target_plant.stock_level_check_and_buy(amount)
-
-        # Creating a new Order object and put into a variable
+        # create a new order object right here
         new_order = Order(
             len(self.__orders) + 1,
             target_customer,
-            target_plant,
-            date.today().strftime("%d-%m-%Y"),
-            amount
+            date.today().strftime("%d-%m-%Y")
         )
+
+        # Trying to find each plant from the item_list and add item record for the order
+        for plant_id, quantity in item_list:
+            plant = self.plant_info(plant_id)
+            if plant is None:
+                raise ValueError(f"The plant, ID: {plant_id}, was not found.")
+            
+            new_order.add_item(plant, quantity)
+
+        # place a new order
+        new_order.place()
 
         # making an order
         self.__orders.append(new_order)
 
-        # record the order
-        target_customer.record_order(new_order)
+        return new_order.order_id
 
     def cancel_order(self, order_id: int) -> None:
         """
