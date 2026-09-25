@@ -135,3 +135,9 @@ class Customer(ABC):
         """Verify the customer balance to prevent it over 100 dollars."""
         if self.__cus_balance + prospective_total > self.CREDIT_LIMIT:
             raise ValueError("The unpaid balance is going to over $100.")
+
+    def check_can_collect(self, order: "Order") -> None:
+        """
+        base method of checking collectable status for the order
+        """
+        pass

@@ -1,5 +1,7 @@
 from datetime import datetime
 from plant.plant import Plant
+from order.orderItem import OrderItem
+from nurseryErrorException.InsufficientStockError import InsufficientStockError
 
 from typing import TYPE_CHECKING
 
@@ -13,24 +15,18 @@ class Order:
     Args:
         order_id (int)
         customer (Customer): the customer object this order belongs to
-        plant (Plant): the plant object this order is for
         date (str)
-        purchase_amount (int)
 
     Attributes:
         __order_id (int): order's id
         __customer (Customer): the customer object this order belongs to
-        __plant (Plant): the plant object this order is for
         __date (str): date of the order placed, format: DD-MM-YYYY
-        __purchase_amount (int): the amount of plants of the order
-        __total_price (float): the total price of the order
         __status (str): order current status, status: pending/collected/cancelled, default status is pending
     """
 
-    def __init__(self, order_id: int, customer: "Customer", plant: Plant, date: str, purchase_amount: int) -> None:
+    def __init__(self, order_id: int, customer: "Customer", date: str) -> None:
         """
-        Create an order, computing its total price (with a 10% discount for
-        10 or more units) and setting its initial status to 'pending'.
+        Create an order, documenting order id, customer object, data, status, order items, and payments 
 
         Raises:
             ValueError: if date is not in DD-MM-YYYY format.
@@ -43,11 +39,10 @@ class Order:
 
         self.__order_id = order_id
         self.__customer = customer
-        self.__plant = plant
         self.__date = date
-        self.__purchase_amount = purchase_amount
-        self.__total_price = self.__total_amount(plant.plant_price, purchase_amount)
         self.__status = 'pending'
+        self.__items = []
+        self.__payments = []
 
     def __str__(self) -> str:
         """Return a readable, multi-line summary of the order."""
@@ -55,31 +50,9 @@ class Order:
             f"Order:\n"
             f"Order id: {self.__order_id}\n"
             f"Customer: {self.__customer.name} (id: {self.__customer.id})\n"
-            f"Plant: {self.__plant.name} (id: {self.__plant.id})\n"
-            f"Pruchase amount: {self.__purchase_amount}\n"
-            f"Total price: {self.__total_price}\n"
             f"Date: {self.__date}\n"
             f"Status: {self.__status}"
         )
-
-    def __total_amount(self, plant_price: float, amount: int) -> float:
-        """
-        Calculate the order total, applying a 10% discount when 10 or more
-        units are purchased.
-
-        Args:
-            plant_price (float): unit price of the plant.
-            amount (int): number of units purchased.
-
-        Returns:
-            float: the order's total price.
-        """
-        total_price = amount * plant_price
-
-        if amount >= 10:
-            total_price = total_price * 0.9
-
-        return total_price
 
     @property
     def order_id(self) -> int:
@@ -92,19 +65,9 @@ class Order:
         return self.__customer
 
     @property
-    def plant(self) -> Plant:
-        """Plant: the plant this order is for."""
-        return self.__plant
-
-    @property
     def customer_id(self) -> int:
         """int: id of the customer this order belongs to."""
         return self.__customer.id
-
-    @property
-    def plant_id(self) -> int:
-        """int: id of the plant this order is for."""
-        return self.__plant.id
 
     @property
     def date(self) -> str:
@@ -112,44 +75,120 @@ class Order:
         return self.__date
 
     @property
-    def purchase_amount(self) -> int:
-        """int: the number of units purchased in this order."""
-        return self.__purchase_amount
-
-    @property
     def status(self) -> str:
         """str: the order's current status ('pending', 'collected', or 'cancelled')."""
         return self.__status
 
+    def add_item(self, plant: "Plant", quantity: int) -> None:
+        """
+        if the order status is not pending, then it cannot be added new item
+        if the item is already existed, then add quantity to the item directly.
+        if cannot find any existed item,
+        then create a new OrderItem object and put into the __items list.
+        """
+        if self.__status != "pending":
+            raise ValueError("Only pending order can change quantity.")
+
+        for item in self.__items:
+            if item.plant.id == plant.id:
+                item.add_quantity(quantity)
+                return
+
+        self.__items.append(OrderItem(plant, quantity))
+                  
+    def get_subtotal(self) -> float:
+        """caculate the total cost of each item"""
+        subtotal = 0
+
+        for item in self.__items:
+            subtotal += round(item.get_cost(), 2)
+
+        return subtotal
+
+    def get_total(self) -> float:
+        """return the total amount of all items that times their own discount rate"""
+        subtotal = self.get_subtotal()
+
+        return round(subtotal * (1 - self.__customer.discount_rate), 2)
+
+    def get_amount_paid():
+        pass
+
+    def get_amount_owed():
+        pass
+
+    def is_fully_paid() -> bool:
+        return False
+
+    def check_can_accept_payment():
+        pass
+
+    def record_payment():
+        pass
+
+    def place(self) -> None:
+        """
+        if any of these verify down there goes wrong the programme will stop here,
+        and nothing happen except showing the error message
+
+        The whole idea is the customer need the pass the verify of their credit limit,
+        or no current pending order depending on their customer type.
+        Then, check the stock, if all the plant stock are enough for
+        each items' requirement, then reduce the stock
+        """
+        if len(self.__items) == 0:
+            raise ValueError("Cannot find any item in the order.")
+
+        total_amount_of_payment = self.get_total()
+
+        # Verify the customer balance
+        self.__customer.check_can_place_order(total_amount_of_payment)
+
+        for item in self.__items:
+            # Verify the stock level of every item, making the stock level is enough for purchase
+            if not item.check_stock():
+                raise InsufficientStockError(
+                    f"Sorry, the stock level of {item.plant.name} is not enough."
+                )
+
+        for item in self.__items:
+            # Reducing the stock number of each item
+            item.reserve_stock()
+
+        # Adding the total balance and order record for the specific customer
+        self.__customer.add_to_balance(total_amount_of_payment)
+        self.__customer.record_order(self)
+
     def cancel(self) -> None:
         """
-        Cancel this order and return its stock to the plant.
+        order status can only be cancelled when its status is pending
 
-        Raises:
-            ValueError: if the order is not currently 'pending'.
+        the process of cancel
+        1. return each item stock
+        2. remove the balance amount of the customer
+        3. set the order status to 'cancelled'
         """
-        # only a pending order can be cancelled
-        if self.__status != 'pending':
-            raise ValueError("A collected or cancelled order cannot be cancelled.")
+        if self.__status != "pending":
+            raise ValueError("The order status needs to be 'Pending' to cancel it.")
 
-        self.__status = 'cancelled'
+        for item in self.__items:
+            item.return_stock()
 
-        # give the stock back to the plant
-        self.__plant.add_stock(self.__purchase_amount)
+        self.__customer.reduce_balance(self.get_total())
+
+        self.__status = "cancelled"
 
     def collect(self) -> None:
         """
-        Mark this order as collected.
+        order status can only be collected when its status is pending
 
-        Raises:
-            ValueError: if the order is 'cancelled' or already 'collected'.
+        calling check_can_collect to see if the customer meet the collection requirement
         """
-        # a cancelled order can never be collected
-        if self.__status == 'cancelled':
-            raise ValueError("A cancelled order cannot be collected.")
+        if self.__status != "pending":
+            raise ValueError("The order status needs to be 'Pending' to collect it.")
 
-        # a collected order cannot be collected again or moved back to pending
-        if self.__status == 'collected':
-            raise ValueError("This order has already been collected.")
+        self.__customer.check_can_collect(self)
 
-        self.__status = 'collected'
+        self.__status = "collected"
+
+
