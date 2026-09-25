@@ -1,13 +1,3 @@
-"""
-Driver program for the Nursery ordering system.
-
-It walks through Brent's original notes (Assignment 1) and his follow-up notes
-(Assignment 2): four plant types, three customer types, multi-item orders,
-discounts, customer balances, payments, custom exceptions and persistence.
-
-Every situation that the system is expected to reject is wrapped in a
-try/except so the program keeps running and shows the error message.
-"""
 import atexit
 import os
 from datetime import date
@@ -59,9 +49,9 @@ def show_state(nursery: NurserySystem, plant_ids: list[int], customer_ids: list[
         for i in customer_ids
     )
     if plant_ids:
-        print(f"  Stock:    {stock}")
+        print(f"Stock: {stock}")
     if customer_ids:
-        print(f"  Balances: {balances}")
+        print(f"Balances: {balances}")
 
 
 def show_order(nursery: NurserySystem, order_id: int) -> None:
@@ -71,7 +61,7 @@ def show_order(nursery: NurserySystem, order_id: int) -> None:
     for item in order.order_items:
         print(f"    - {item}")
     print(
-        f"    Subtotal ${order.get_subtotal():.2f} | "
+        f"Subtotal ${order.get_subtotal():.2f} | "
         f"{order.customer.customer_type} discount {order.customer.discount_rate:.0%} | "
         f"Total ${order.get_total():.2f}"
     )
@@ -83,10 +73,10 @@ def print_quote(nursery: NurserySystem, title: str, customer_id: int, items: lis
     quote = Order(0, customer, TODAY)
     for plant_id, quantity in items:
         quote.add_item(nursery.plant_info(plant_id), quantity)
-    print(f"  {title}")
+    print(f"{title}")
     for item in quote.order_items:
         print(f"    - {item}")
-    print(f"    Subtotal ${quote.get_subtotal():.2f}, total for a {customer.customer_type} customer ${quote.get_total():.2f}")
+    print(f"Subtotal ${quote.get_subtotal():.2f}, total for a {customer.customer_type} customer ${quote.get_total():.2f}")
 
 
 def debit(nursery: NurserySystem, payment_id: int, amount: float, order_id: int, payer=None) -> DebitCardPayment:
@@ -125,9 +115,10 @@ system.plant_list()
 section("2. Stock checks and plant validation")
 griselinia = system.plant_info(1)
 print(f"{griselinia.name}: {griselinia.stock_level} {griselinia.unit_label}s in stock")
-print("  enough for 25?", griselinia.stock_level_check(25))
-print("  enough for 35?", griselinia.stock_level_check(35))
+print(" enough for 25?", griselinia.stock_level_check(25))
+print(" enough for 35?", griselinia.stock_level_check(35))
 print("\nOnly the plants that are in stock (the orchid is left out):")
+
 system.available_plant_list()
 print()
 attempt("plant with a negative price", lambda: system.add_plant(TreesAndShrubs(9, "bad plant", -5.0, 3)))
@@ -141,9 +132,11 @@ system.add_customer(Student(2, "Mandy Garcia", "mandy@mail.com", "020-222-2222")
 system.add_customer(Community(3, "Mike Hardy", "mike@mail.com", "020-333-3333"))
 system.add_customer(Staff(4, "Sarah Lee", "sarah@mail.com", "020-444-4444"))
 system.customer_list()
+
 for customer_type in ("Staff", "Student", "Community"):
     print(f"\n--- {customer_type} customers only ---")
     system.get_customers_by_type(customer_type)
+
 print()
 attempt("customer with a duplicate id", lambda: system.add_customer(Community(1, "Someone Else", "else@mail.com", "020-999-9999")))
 attempt("customer with a duplicate email", lambda: system.add_customer(Student(9, "Copy Cat", "edward@mail.com", "")))
@@ -155,10 +148,13 @@ attempt("customer with an invalid id", lambda: system.add_customer(Staff(0, "Zer
 section("4. One order with several plant types (Brent's example)")
 print("4 griselinias, 2 large pot ferns and 1 punnet of tomato seedlings for Edward.\n")
 print("Before the order:")
+
 show_state(system, [1, 4, 5], [1])
 brent_order = system.place_order(1, [(1, 4), (4, 2), (5, 1)])
+
 print()
 show_order(system, brent_order)
+
 print("\nAfter the order (stock went down straight away, the total was added to Edward's balance):")
 show_state(system, [1, 4, 5], [1])
 
@@ -168,9 +164,11 @@ print("The same basket (10 punnets of tomato at $5.00 = $50.00, less 10% = $45.0
 staff_order = system.place_order(4, [(5, 10)])
 student_order = system.place_order(2, [(5, 10)])
 community_order = system.place_order(3, [(5, 10)])
+
 for order_id in (staff_order, student_order, community_order):
     show_order(system, order_id)
     print()
+
 print("Pot plants need 10 of the SAME size for the item discount (price quotes only, nothing is ordered):")
 print_quote(system, "10 small ferns", 3, [(3, 10)])
 print_quote(system, "5 small + 5 large ferns (mixed sizes, no item discount)", 3, [(3, 5), (4, 5)])
@@ -185,27 +183,27 @@ print()
 try:
     system.place_order(1, [(7, 6)])
 except InsufficientStockError as error:
-    print(f"  [InsufficientStockError] 6 free saplings, only 5 in stock: {error}")
+    print(f"[InsufficientStockError] 6 free saplings, only 5 in stock: {error}")
 
 try:
     system.place_order(1, [(4, 3)])
 except CreditLimitExceededError as error:
-    print(f"  [CreditLimitExceededError] Staff customer over $100: {error}")
+    print(f"[CreditLimitExceededError] Staff customer over $100: {error}")
 
 try:
     system.place_order(2, [(4, 5)])
 except CreditLimitExceededError as error:
-    print(f"  [CreditLimitExceededError] Student customer over $100: {error}")
+    print(f"[CreditLimitExceededError] Student customer over $100: {error}")
 
 try:
     system.place_order(3, [(2, 1)])
 except PendingOrderExistsError as error:
-    print(f"  [PendingOrderExistsError] Community customer with a pending order: {error}")
+    print(f"[PendingOrderExistsError] Community customer with a pending order: {error}")
 
 try:
     system.place_order(3, [(2, 1)])
 except NurseryError as error:
-    print(f"  [NurseryError] the base class catches any of the errors above: {error}")
+    print(f"[NurseryError] the base class catches any of the errors above: {error}")
 
 print("\nNothing changed because of the rejected orders:")
 show_state(system, [4, 7], [1, 2, 3])
@@ -266,14 +264,17 @@ show_order(system, lavender_order)
 
 print("\nCancelling a pending order that has no payments gives the stock and the balance back:")
 cancel_order = system.place_order(1, [(2, 3)])
+
 print("Before cancelling:")
 show_state(system, [2], [1])
+
 system.cancel_order(cancel_order)
 print("After cancelling:")
+
 show_state(system, [2], [1])
 print(f"Order {cancel_order} status: {system.check_order_status(cancel_order)}")
-
 print("\nOrders that can no longer be cancelled or collected:")
+
 part_paid_order = system.place_order(1, [(1, 2)])
 system.make_payment(debit(system, 7, 5.00, part_paid_order))
 attempt("cancelling an order that already has a payment", lambda: system.cancel_order(part_paid_order))
@@ -282,13 +283,17 @@ attempt("collecting an order twice", lambda: system.collect_order(lavender_order
 attempt("paying toward a cancelled order", lambda: system.make_payment(debit(system, 8, 5.00, cancel_order)))
 
 print("\nCommunity customers must pay in full before they can collect:")
+
 attempt("collecting before paying anything", lambda: system.collect_order(community_order))
 system.make_payment(credit(system, 9, 20.00, community_order))
+
 attempt("collecting after only a partial payment", lambda: system.collect_order(community_order))
 system.make_payment(debit(system, 10, 25.00, community_order))
 system.collect_order(community_order)
+
 print(f"Order {community_order} status after paying in full: {system.check_order_status(community_order)}")
 show_state(system, [], [3])
+
 print("Mike has nothing pending any more, so he can order again:")
 mike_second_order = system.place_order(3, [(2, 3)])
 show_order(system, mike_second_order)
@@ -297,39 +302,53 @@ show_order(system, mike_second_order)
 section("9. Reports and searches")
 print("All orders:")
 system.order_list()
+
 print("\nEdward's order history (cancelled orders included):")
 system.customer_order_history(1)
+
 print("\nOrder statuses:")
 for order_id in (brent_order, lavender_order, cancel_order, part_paid_order, community_order):
     print(f"  Order {order_id}: {system.check_order_status(order_id)}")
+
 print("\nAll customers, with their balances:")
 system.customer_list()
 for customer_type in ("Staff", "Student", "Community"):
     print(f"\n--- {customer_type} customers only ---")
     system.get_customers_by_type(customer_type)
+
 print("\nAll payments:")
 system.payment_list()
+
 print("\nEdward's payment history:")
 system.customer_payment_history(1)
+
 print(f"\nAll payments made toward order {brent_order}:")
 system.order_payment_history(brent_order)
 
 # ---------------------------------------------------------------------------
 section("10. Saving and reloading the data")
 system.save()
-atexit.unregister(system.save)          # the reloaded system takes over the automatic save at exit
+# the reloaded system takes over the automatic save at exit
+atexit.unregister(system.save)
+
 reloaded = NurserySystem(DATA_FILE)
+
 print("Customers reloaded as:", [(i, type(reloaded.customer_info(i)).__name__) for i in (1, 2, 3, 4)])
 print("Plants reloaded as:   ", [(i, type(reloaded.plant_info(i)).__name__) for i in range(1, 9)])
 reloaded_order = reloaded.order_info(brent_order)
+
 print("Payments on Brent's order reloaded as:", [type(p).__name__ for p in reloaded_order.order_payments])
 print("The order still shares the same Customer object as the customer list:",
       reloaded_order.customer is reloaded.customer_info(1))
+
 print()
 show_order(reloaded, brent_order)
 show_state(reloaded, [1, 2, 4, 5], [1, 2, 3, 4])
+
 print("\nThe reloaded system keeps working:")
+
 new_order = reloaded.place_order(4, [(2, 1)])
+
 print(f"  Sarah placed order {new_order}, status {reloaded.check_order_status(new_order)}")
 
 print("\nEnd of the demonstration. The data is saved automatically when the program exits.")
