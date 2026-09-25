@@ -1,4 +1,5 @@
 from customer.customer import Customer
+from nurseryErrorException.PendingOrderExistsError import PendingOrderExistsError
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -29,7 +30,7 @@ class Community(Customer):
         """preventing Community customer get second order before they collect their first order"""
         for order in self.orders:
             if order.status == "pending":
-                raise ValueError(f"Customer {self.name} cannot place order because of the other pending orders.")
+                raise PendingOrderExistsError(f"Customer {self.name} cannot place order because of the other pending orders.")
 
     def check_can_collect(self, order: "Order") -> None:
         """Community customer need to pay the bill, then be able to collect the order"""

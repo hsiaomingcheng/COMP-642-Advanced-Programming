@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
+from nurseryErrorException.CreditLimitExceededError import CreditLimitExceededError
 
 if TYPE_CHECKING:
     from order.order import Order
@@ -134,7 +135,7 @@ class Customer(ABC):
     def check_can_place_order(self, prospective_total: float) -> None:
         """Verify the customer balance to prevent it over 100 dollars."""
         if self.__cus_balance + prospective_total > self.CREDIT_LIMIT:
-            raise ValueError("The unpaid balance is going to over $100.")
+            raise CreditLimitExceededError("The unpaid balance is going to over $100.")
 
     def check_can_collect(self, order: "Order") -> None:
         """
