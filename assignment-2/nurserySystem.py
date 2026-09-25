@@ -221,3 +221,32 @@ class NurserySystem:
             if index != 0:
                 print("---")
             print(order)
+
+    def make_payment(self, payment: "Payment") -> None:
+        # checking if the payment id is already exsisted.
+        # if is exsisted, means this payment is already paid.
+        for item in self.__payments:
+            if item.payment_id == payment.payment_id:
+                raise ValueError("The payment id is already exsisted.")
+
+        # verify this is a real order
+        is_real_order = self.order_info(payment.order.order_id)
+
+        if is_real_order is None:
+            raise ValueError("The order is not exsisted.")
+
+        # verify is the same person who make the payment and the order
+        if payment.customer.id != payment.order.customer_id:
+            raise ValueError("Customer need to be the same one of the payment and order.")
+
+        # check the status of order to determine if this is a acceptable payment
+        payment.order.check_can_accept_payment(payment)
+
+        # record the payment
+        payment.order.record_payment(payment)
+
+        # reduce the balance of the customer
+        payment.customer.reduce_balance(payment.amount)
+
+        # put this payment into system payment list(self.__payments)
+        self.__payments.append(payment)
