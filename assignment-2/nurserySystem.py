@@ -40,7 +40,7 @@ class NurserySystem:
             try:
                 with open(self.__file, "rb") as f:
                     customers, plants, orders, payments = pickle.load(f)
-                    
+
                     self.__customers = customers
                     self.__plants = plants
                     self.__orders = orders
@@ -253,6 +253,13 @@ class NurserySystem:
                 print("---")
             print(order)
 
+    def payment_list(self) -> None:
+        """Print every payment in the system."""
+        for index, payment in enumerate(self.__payments):
+            if index != 0:
+                print("---")
+            print(payment)
+
     def make_payment(self, payment: "Payment") -> None:
         # checking if the payment id is already exsisted.
         # if is exsisted, means this payment is already paid.
@@ -281,3 +288,42 @@ class NurserySystem:
 
         # put this payment into system payment list(self.__payments)
         self.__payments.append(payment)
+
+    def get_customers_by_type(self, customer_type: str) -> None:
+        """Print the customer that only match customer_type in the system."""
+        shown = 0
+        for cus in self.__customers:
+            if cus.customer_type == customer_type:
+                if shown != 0:
+                    print("---")
+                print(cus)
+                shown += 1
+
+    def customer_payment_history(self, cus_id) -> None:
+        """Print the customer's payment that only match customer's payment id in the system."""
+        shown = 0
+        for payment in self.__payments:
+            if payment.customer.id == cus_id:
+                if shown != 0:
+                    print("---")
+                print(payment)
+                shown += 1
+
+    def order_payment_history(self, order_id: int) -> None:
+        """
+        Print every payment made toward one order.
+
+        Raises:
+            ValueError: if order_id does not exist.
+        """
+        order = self.order_info(order_id)
+        if order is None:
+            raise ValueError("Please enter valid order Id")
+
+        # print a '---' separator between payments, but not before the first one
+        shown = 0
+        for payment in order.order_payments:
+            if shown != 0:
+                print("---")
+            print(payment)
+            shown += 1
